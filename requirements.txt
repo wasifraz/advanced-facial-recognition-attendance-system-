@@ -1,0 +1,5 @@
+---code requirements---
+python 3.11+
+pip install pillow
+tkinter GUI
+pylance,python debugger and python extension in vscode
