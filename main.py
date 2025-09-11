@@ -30,7 +30,7 @@ class Face_Recognition_System:
 
         # third image
         img2=Image.open(r"C:\Users\iswas\Downloads\college image\image3.jpg")
-        img2=img2.resize((500,130),Image.Resampling.LANCZOS)
+        img2=img2.resize((600,130),Image.Resampling.LANCZOS)
         self.photoimg2=ImageTk.PhotoImage(img2)
 
         f_lbl=Label(self.root,image=self.photoimg2)
