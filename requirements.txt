@@ -1,5 +1,9 @@
----code requirements---
+#---code requirements---
 python 3.11+
 pip install pillow
 tkinter GUI
 pylance,python debugger and python extension in vscode
+#---------warnnings---------
+"""This code will not be able to run on your local machines as the image that i have added is from my computer 
+   so in order to get it run you have to make changes on your on local machine and give the exact location
+   where you actually put your image in jpg,jpeg or png form"""
