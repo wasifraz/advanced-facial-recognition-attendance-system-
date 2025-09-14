@@ -1,5 +1,11 @@
----code requirements---
-python 3.11+
-pip install pillow
-tkinter GUI
-pylance,python debugger and python extension in vscode
+#---code requirements---
+# packages to be installed
+Pillow>=10.0.0
+opencv-python
+
+# ----------------programming language---------
+# python>=3.13.7
+# tkinter
+
+
+
