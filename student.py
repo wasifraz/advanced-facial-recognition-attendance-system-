@@ -16,8 +16,8 @@ class Student:
 
         f_lbl=Label(self.root,image=self.photoimg)
         f_lbl.place(x=0,y=0,width=500,height=130)
-    
-    
+        
+        
         # second image     
         img1=Image.open("college image\\image2.png")
         img1=img1.resize((540,130),Image.Resampling.LANCZOS)
@@ -106,7 +106,7 @@ class Student:
         Class_Info_Frame.place(x=5,y=250,width=720,height=300)
 
         #StudentId
-        StudentID_label=Label(Class_Info_Frame,text="StudentID:",bg="white",font=("times new roman",13,"bold"))
+        StudentID_label=Label(Class_Info_Frame,text="Registration Number:",bg="white",font=("times new roman",13,"bold"))
         StudentID_label.grid(row=0,column=0,padx=10,pady=5,sticky=W)
 
         StudentID_entry=ttk.Entry(Class_Info_Frame,font=('times new roman',12,"bold"),width=21)
@@ -128,8 +128,8 @@ class Student:
         ClassDiv_combo.current(0)
         ClassDiv_combo.grid(row=1,column=1,padx=10,pady=5,sticky=W)
 
-        #Registration Number
-        RegdNo_label=Label(Class_Info_Frame,text="Registration Number:",bg="white",font=("times new roman",13,"bold"))
+        #Roll Number
+        RegdNo_label=Label(Class_Info_Frame,text="Roll Number:",bg="white",font=("times new roman",13,"bold"))
         RegdNo_label.grid(row=1,column=2,padx=10,pady=5,sticky=W)
 
         RegdNo_entry=ttk.Entry(Class_Info_Frame,font=('times new roman',12,"bold"),width=20)
