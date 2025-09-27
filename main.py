@@ -44,7 +44,7 @@ class Face_Recognition_System:
         bg_img=Label(self.root,image=self.photoimg3)
         bg_img.place(x=0,y=130,width=1530,height=710)
         
-        title_lbl=Label(bg_img,text="FACE RECOGNITION ATTENDANCE SYSTEM SOFTWARE",font=("times new roman",35,"bold"),bg="white",fg="red")
+        title_lbl=Label(bg_img,text="FACE RECOGNITION ATTENDANCE SYSTEM SOFTWARE",font=("times new roman",35,"bold"),bg="skyblue",fg="red")
         title_lbl.place(x=0,y=0,width=1530,height=45)
         
         # student button
@@ -55,7 +55,7 @@ class Face_Recognition_System:
         b1=Button(bg_img,image=self.photoimg4,command=self.student_details,cursor="hand2")
         b1.place(x=200,y=100,width=220,height=220)
         
-        b1=Button(bg_img,text="Student Details",command=self.student_details,cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="white")
+        b1=Button(bg_img,text="Student Details",command=self.student_details,cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="navy")
         b1.place(x=200,y=300,width=220,height=40)
         
         #face regonition button
@@ -66,7 +66,7 @@ class Face_Recognition_System:
         b1=Button(bg_img,image=self.photoimg5,cursor="hand2")
         b1.place(x=500,y=100,width=220,height=220)
         
-        b1=Button(bg_img,text="Face Detector",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="white")
+        b1=Button(bg_img,text="Face Detector",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="navy")
         b1.place(x=500,y=300,width=220,height=40)
         
         #attendance button
@@ -77,7 +77,7 @@ class Face_Recognition_System:
         b1=Button(bg_img,image=self.photoimg6,cursor="hand2")
         b1.place(x=800,y=100,width=220,height=220)
         
-        b1=Button(bg_img,text="Attendance",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="white")
+        b1=Button(bg_img,text="Attendance",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="navy")
         b1.place(x=800,y=300,width=220,height=40)
         
         # help desk button
@@ -88,7 +88,7 @@ class Face_Recognition_System:
         b1=Button(bg_img,image=self.photoimg7,cursor="hand2")
         b1.place(x=1100,y=100,width=220,height=220)
         
-        b1=Button(bg_img,text="Help Desk",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="white")
+        b1=Button(bg_img,text="Help Desk",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="navy")
         b1.place(x=1100,y=300,width=220,height=40)
         
         # train button
@@ -99,7 +99,7 @@ class Face_Recognition_System:
         b1=Button(bg_img,image=self.photoimg8,cursor="hand2")
         b1.place(x=200,y=380,width=220,height=220)
         
-        b1=Button(bg_img,text="Train Data",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="white")
+        b1=Button(bg_img,text="Train Data",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="navy")
         b1.place(x=200,y=580,width=220,height=40)
         
         # photo button
@@ -110,7 +110,7 @@ class Face_Recognition_System:
         b1=Button(bg_img,image=self.photoimg9,cursor="hand2")
         b1.place(x=500,y=380,width=220,height=220)
         
-        b1=Button(bg_img,text="Photos",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="white")
+        b1=Button(bg_img,text="Photos",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="navy")
         b1.place(x=500,y=580,width=220,height=40)
         
         # developer button
@@ -121,7 +121,7 @@ class Face_Recognition_System:
         b1=Button(bg_img,image=self.photoimg10,cursor="hand2")
         b1.place(x=800,y=380,width=220,height=220)
         
-        b1=Button(bg_img,text="Developer Details",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="white")
+        b1=Button(bg_img,text="Developer Details",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="navy")
         b1.place(x=800,y=580,width=220,height=40)
         
         # exit button
@@ -132,7 +132,7 @@ class Face_Recognition_System:
         b1=Button(bg_img,image=self.photoimg11,cursor="hand2")
         b1.place(x=1100,y=380,width=220,height=220)
         
-        b1=Button(bg_img,text="Exit",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="white")
+        b1=Button(bg_img,text="Exit",cursor="hand2",font=("times new roman",15,"bold"),bg="lightblue",fg="navy")
         b1.place(x=1100,y=580,width=220,height=40)
         
         

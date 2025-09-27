@@ -2,7 +2,7 @@ from tkinter import*
 from tkinter import ttk 
 from PIL import Image,ImageTk
 from tkinter import messagebox #imported for messagebox
-import mysql.connector         #imported for database                            
+import mysql.connector #imported for database                            
 
 class Student:
     def __init__(self,root):
@@ -306,7 +306,7 @@ class Student:
         self.student_table["show"]="headings"
 
         self.student_table.pack(fill=BOTH,expand=1)
-        self.fetch_data()
+        
         #Funtion Declaration
 
     def add_data(self):
@@ -337,38 +337,10 @@ class Student:
 
                                                                                   ))
               conn.commit()
-              self.fetch_data()
               conn.close()
               messagebox.showinfo("Successful","Student details successfully added",parent=self.root)
           except Exception as es:
               messagebox.showerror("Error",f"Due to :{str(es)}",parenrt=self.root)
-
-
-            #Fetch Data
-    def fetch_data(self):
-        conn=mysql.connector.connect(host="localhost",username="root",password="Reverse@Osmosis1132",database="face_recog")
-        my_cursor=conn.cursor()
-        my_cursor.execute("Select * from student")
-        data=my_cursor.fetchall()
-
-        if len(data)!=0:
-            self.student_table.delete(*self.student_table.get_children())
-            for i in data:
-                self.student_table.insert("",END,values=i)  
-            conn.commit()
-        conn.close()        
-
-
-
-
-
-
-
-
-
-
-
-
 
 if __name__ =="__main__":
     root=Tk()
