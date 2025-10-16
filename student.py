@@ -177,7 +177,7 @@ class Student:
         Email_label.grid(row=3,column=0,padx=10,pady=5,sticky=W)
 
         Email_entry=ttk.Entry(Class_Info_Frame,textvariable=self.var_email,font=("times new roman",12,"bold"),width=21)
-        Email_entry.grid(row=3,column=1,padx=10,pady=5,sticky=W)
+        Email_entry.grid(row=3,column=1,padx=12,pady=5,sticky=W)
         
         #PhoneNo
         PhoneNo_label=Label(Class_Info_Frame,text="PhoneNo:",bg="white",font=("times new roman",13,"bold"))
@@ -191,7 +191,7 @@ class Student:
         Address_label.grid(row=4,column=0,padx=10,pady=5,sticky=W)
 
         Address_entry=ttk.Entry(Class_Info_Frame,textvariable=self.var_address,font=("times new roman",12,"bold"),width=21)
-        Address_entry.grid(row=4,column=1,padx=10,pady=5,sticky=W)
+        Address_entry.grid(row=4,column=1,padx=12,pady=5,sticky=W)
 
         #Proctor
         Proctor_label=Label(Class_Info_Frame,text="ProctorName:",bg="white",font=("times new roman",13,"bold"))
@@ -307,7 +307,7 @@ class Student:
             messagebox.showerror("Error","All Fields are required",parent=self.root)
         else:
             try:
-                conn=mysql.connector.connect(host="localhost",username="root",password="251004",database="face_recognizer")
+                conn=mysql.connector.connect(host="localhost",username="root",password="Raza@Khan2002",database="face_recog")
                 my_cursor=conn.cursor()
                 my_cursor.execute("insert into student values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",( 
                                                                                                             self.var_dep.get(),
@@ -335,7 +335,7 @@ class Student:
 
     # ================= fetch data ==================
     def fetch_data(self):
-        conn=mysql.connector.connect(host="localhost",username="root",password="251004",database="face_recognizer")
+        conn=mysql.connector.connect(host="localhost",username="root",password="Raza@Khan2002",database="face_recog")
         my_cursor=conn.cursor()
         my_cursor.execute("select * from student")
         data=my_cursor.fetchall()
@@ -377,7 +377,7 @@ class Student:
             try:
                 Update=messagebox.askyesno("Update","Do you want to update this student details?",parent=self.root)
                 if Update>0:
-                    conn=mysql.connector.connect(host="localhost",username="root",password="251004",database="face_recognizer")
+                    conn=mysql.connector.connect(host="localhost",username="root",password="Raza@Khan2002",database="face_recog")
                     my_cursor=conn.cursor()
                     my_cursor.execute("Update student set Department=%s,GroupNo=%s,YearNo=%s,Semester=%s,StudentName=%s,Course=%s,RollNo=%s,Gender=%s,DOB=%s,Email=%s,PhoneNo=%s,Home_Address=%s,Proctor=%s,PhotoSampleStatus=%s where StudentID=%s",(
 
@@ -415,7 +415,7 @@ class Student:
             try:
                 Delete=messagebox.askyesno("Student Delete Page","Do you want to delete the student details?",parent=self.root)
                 if Delete>0:
-                    conn=mysql.connector.connect(host="localhost",username="root",password="251004",database="face_recognizer")
+                    conn=mysql.connector.connect(host="localhost",username="root",password="Raza@Khan2002",database="face_recog")
                     my_cursor=conn.cursor()
                     sql="Delete from student where StudentID=%s"
                     val=(self.var_std_id.get(),)
@@ -437,17 +437,17 @@ class Student:
         self.var_group.set("Select Group")
         self.var_year.set("Select Year")
         self.var_sem.set("Select Semester")
-        self.var_std_id.set("Select Registration Number")
-        self.var_std_name.set("Select Name")
+        self.var_std_id.set("")
+        self.var_std_name.set("")
         self.var_course.set("Select Course")
-        self.var_roll.set("Select Roll Number")
-        self.var_gender.set("Select Gender")
-        self.var_dob.set("Select DOB")
-        self.var_email.set("Select Email")
-        self.var_phone.set("Select PhoneNo") 
-        self.var_address.set("Select Address")
-        self.var_proctor.set("Select Proctor")
-        self.var_radio1.set("Select Photo Sample")
+        self.var_roll.set("")
+        self.var_gender.set("Male")
+        self.var_dob.set("")
+        self.var_email.set("")
+        self.var_phone.set("") 
+        self.var_address.set("")
+        self.var_proctor.set("")
+        self.var_radio1.set("")
 
     # =============== Photo Sample Function ===================
     def generate_dataset(self):
@@ -455,7 +455,7 @@ class Student:
             messagebox.showerror("Error","All Fields are required",parent=self.root)
         else:
             try:
-                conn=mysql.connector.connect(host="localhost",username="root",password="251004",database="face_recognizer")
+                conn=mysql.connector.connect(host="localhost",username="root",password="Raza@Khan2002",database="face_recog")
                 my_cursor=conn.cursor()
                 my_cursor.execute("Select * from student")
                 myresult=my_cursor.fetchall()
@@ -497,7 +497,7 @@ class Student:
                         face_cropped=img[y:y+h,x:x+w]
                         return face_cropped
                 
-                cap=cv2.VideoCapture(0)
+                cap=cv2.VideoCapture(0,cv2.CAP_DSHOW)
                 img_id=0
                 while True:
                     ret,my_frame=cap.read()
@@ -518,10 +518,6 @@ class Student:
                 messagebox.showinfo("Result","Generating data sets!!")
             except Exception as es:
                 messagebox.showerror("Error",f"Due To:{str(es)}",parent=self.root)
-
-
-
-
                     
 
 if __name__ == "__main__":
