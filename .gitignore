@@ -1,2 +1,21 @@
 .env
-setup.py
+# Ignore build outputs and large binaries
+build/
+dist/
+*.pyd
+*.msi
+*.exe
+*.dll
+*.zip
+*.spec
+
+# IDE and OS clutter
+__pycache__/
+*.pyc
+*.pyo
+*.pdb
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
