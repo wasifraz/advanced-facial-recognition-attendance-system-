@@ -1,5 +1,7 @@
-from tkinter import *
-from tkinter import ttk, messagebox
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
+from tkinter import * # Still needed for messagebox
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import mysql.connector
 from mysql.connector import pooling, Error
@@ -16,59 +18,94 @@ from time import strftime
 class Face_Recognition:
     def __init__(self, root):
         self.root = root
-        self.root.geometry("1530x790+0+0")
+        
+        # --- UI/UX CHANGE: Set window to open maximized ---
+        self.root.state('zoomed')
+        self.root.minsize(1280, 720)
         self.root.title("Face Recognition System")
 
-        title_lbl = Label(self.root, text="FACE RECOGNITION SYSTEM",
-                        font=("times new roman", 35, "bold"),
-                        bg="skyblue", fg="darkgreen")
-        title_lbl.place(x=0, y=0, width=1530, height=45)
+        # --- UI/UX CHANGE: Modern Header ---
+        header_frame = ttk.Frame(self.root, bootstyle="primary")
+        header_frame.pack(fill=X, side=TOP)
         
-        # ============================time=============================
-        self.time_lbl = Label(title_lbl, font=("times new roman", 14, "bold"), bg="skyblue", fg="white")
-        self.time_lbl.place(x=0, y=0, width=130, height=45) 
+        title_lbl = ttk.Label(
+            header_frame, 
+            text="FACE RECOGNITION SYSTEM", 
+            font=("Segoe UI", 24, "bold"), 
+            bootstyle="inverse-primary"
+        )
+        title_lbl.pack(side=LEFT, padx=20, pady=10)
+        
+        self.time_lbl = ttk.Label(
+            header_frame, 
+            font=("Segoe UI", 16, "bold"), 
+            bootstyle="inverse-primary"
+        )
+        self.time_lbl.pack(side=RIGHT, padx=20, pady=10)
         self.update_time()
 
-
-        # Images with error handling
+        # --- UI/UX CHANGE: Load original PIL images (for resizing) ---
         try:
-            img_Top = Image.open(r"college images\face detector.webp")
-            img_Top = img_Top.resize((650, 750), Image.Resampling.LANCZOS)
-            self.photoimg_Top = ImageTk.PhotoImage(img_Top)
-            f_lbl = Label(self.root, image=self.photoimg_Top)
-            f_lbl.place(x=0, y=45, width=650, height=750)
-        except:
-            pass
-
-        try:
-            img_side = Image.open(r"college images\image 8.png")
-            img_side = img_side.resize((950, 750), Image.Resampling.LANCZOS)
-            self.photoimg_side = ImageTk.PhotoImage(img_side)
-            f_lbl = Label(self.root, image=self.photoimg_side)
-            f_lbl.place(x=650, y=45, width=950, height=750)
-        except:
-            pass
-
-        # Buttons
-        b1_1 = Button(self.root, text="START FACE RECOGNITION", cursor="hand2",
-                    font=("times new roman", 15, "bold"), bg="darkgreen", fg="white",
-                    command=self.start_recognition_thread)
-        b1_1.place(x=970, y=705, width=300, height=27)
-
-        # button with Database Check === 
-        b1_2 = Button(self.root, text="🔍 CHECK DATABASE", cursor="hand2",
-                    font=("times new roman", 15, "bold"), bg="blue", fg="white",
-                    command=self.check_database) # Command changed
-        b1_2.place(x=970, y=735, width=300, height=24)
-
-        #=============================face recognition================================
+            self.original_img_top = Image.open(r"college images\face detector.webp")
+        except Exception as e:
+            print(f"Error loading left image: {e}")
+            self.original_img_top = None
         
+        try:
+            self.original_img_side = Image.open(r"college images\image 8.png")
+        except Exception as e:
+            print(f"Error loading right image: {e}")
+            self.original_img_side = None
+
+        # --- UI/UX CHANGE: Main frame to hold the 50/50 split ---
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(fill=BOTH, expand=YES)
+
+        # --- UI/UX CHANGE: Left 50% Frame ---
+        self.left_frame = ttk.Frame(main_frame)
+        self.left_frame.place(relx=0, rely=0, relwidth=0.46, relheight=1.0)
+        
+        self.f_lbl_top = ttk.Label(self.left_frame)
+        self.f_lbl_top.place(relwidth=1, relheight=1)
+        
+        # --- UI/UX CHANGE: Right 50% Frame ---
+        self.right_frame = ttk.Frame(main_frame)
+        self.right_frame.place(relx=0.46, rely=0, relwidth=0.6, relheight=1.0)
+        
+        self.f_lbl_side = ttk.Label(self.right_frame)
+        self.f_lbl_side.place(relwidth=1, relheight=1)
+
+        # --- UI/UX CHANGE: Buttons (Placed relative to right_frame) ---
+        # Placed near "78% scanning" area as requested
+        b1_1 = ttk.Button(self.right_frame, text="▶ START FACE RECOGNITION",
+                          cursor="hand2",
+                          bootstyle="success-outline",
+                          command=self.start_recognition_thread,
+                          width=45,
+                          padding=4)
+        b1_1.place(relx=0.50, rely=0.90, anchor=CENTER) 
+
+        b1_2 = ttk.Button(self.right_frame, text="🔍 CHECK DATABASE", 
+                          cursor="hand2",
+                          bootstyle="info-outline",
+                          command=self.check_database,
+                          width=39,
+                          padding=4)
+        b1_2.place(relx=0.50, rely=0.94, anchor=CENTER)
+
+        # --- UI/UX CHANGE: Bind resize events to make images responsive ---
+        self.left_frame.bind("<Configure>", self.on_left_resize)
+        self.right_frame.bind("<Configure>", self.on_right_resize)
+
+        # Store PhotoImage references to prevent garbage collection
+        self.photoimg_Top = None 
+        self.photoimg_side = None
+
         # Configuration
         self.BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.CASCADE_PATH = os.path.join(self.BASE_DIR, "haarcascade_frontalface_default.xml")
         self.CLASSIFIER_DIR = os.path.join(self.BASE_DIR, "classifier")
         self.CLASSIFIER_PATH = os.path.join(self.CLASSIFIER_DIR, "classifier.xml")
-        # Alternative paths
         self.CLASSIFIER_PATH_ALT = os.path.join(self.BASE_DIR, "classifier.xml")
 
         # Database connection pool configuration
@@ -81,11 +118,61 @@ class Face_Recognition:
         self.stop_flag = False
 
         # Smoothing and caching
-        self.face_tracking = {}  # Track multiple faces: {face_position: deque of predictions}
+        self.face_tracking = {}
         self.student_cache = {}
-        self.last_recognized = {}  # Prevent duplicate alerts
+        self.last_recognized = {}
 
         print("✓ Face Recognition System Initialized Successfully")
+
+
+    def on_left_resize(self, event):
+        """Resizes the left image to fit its frame."""
+        if not self.original_img_top:
+            return
+        width = event.width
+        height = event.height
+        
+
+        if width < 2 or height < 2:
+            return
+            
+        try:
+            img = self.original_img_top.resize((width, height), Image.Resampling.LANCZOS)
+            self.photoimg_Top = ImageTk.PhotoImage(img)
+            self.f_lbl_top.config(image=self.photoimg_Top)
+        except Exception as e:
+            print(f"Error resizing left image: {e}")
+
+    def on_right_resize(self, event):
+        """Resizes the right image to fit its frame."""
+        if not self.original_img_side:
+            return
+        width = event.width
+        height = event.height
+        
+        # Prevent resizing to 1x1 on minimize
+        if width < 2 or height < 2:
+            return
+    
+        try:
+            img = self.original_img_side.resize((width, height), Image.Resampling.LANCZOS)
+            self.photoimg_side = ImageTk.PhotoImage(img)
+            self.f_lbl_side.config(image=self.photoimg_side)
+        except Exception as e:
+            print(f"Error resizing right image: {e}")
+
+    # --- UI/UX FIX: Thread-safe message box handler ---
+    def show_message(self, type, title, message):
+        """
+        Shows a messagebox from the main thread to prevent crashes.
+        Called from the recognition thread.
+        """
+        if type == "error":
+            self.root.after(0, lambda: messagebox.showerror(title, message, parent=self.root))
+        elif type == "warning":
+            self.root.after(0, lambda: messagebox.showwarning(title, message, parent=self.root))
+        else:
+            self.root.after(0, lambda: messagebox.showinfo(title, message, parent=self.root))
 
     def init_database_pool(self):
         """Initialize MySQL connection pool for efficient database access"""
@@ -114,7 +201,6 @@ class Face_Recognition:
             print(f"✗ Failed to get connection from pool: {e}")
         return None
 
-    # === ADDED: Database diagnostic function from first script (and upgraded) ===
     def check_database(self):
         """Debug function to check database contents using the connection pool."""
         print("\nRunning database diagnostic...")
@@ -150,17 +236,14 @@ class Face_Recognition:
         finally:
             if conn and conn.is_connected():
                 cursor.close()
-                conn.close() # Returns the connection to the pool
+                conn.close() 
                 print("✓ Diagnostic finished, connection returned to pool.")
-    # ========================================================================
 
     def get_student_info(self, student_id):
         """Fetch student information with caching and error handling"""
-        # Check cache first
         if student_id in self.student_cache:
             return self.student_cache[student_id]
 
-        # Fetch from database
         conn = self.get_db_connection()
         if not conn:
             return {"Name": "DB Error", "Roll": "N/A", "Dep": "N/A"}
@@ -206,31 +289,23 @@ class Face_Recognition:
     
     def face_recog(self):
         """Main face recognition function with maximum accuracy and reliability"""
-        # ============= STEP 1: VALIDATE FILES =============
         print("\n" + "="*60)
         print("STARTING FACE RECOGNITION SYSTEM")
         print("="*60)
 
-        # Check Haar Cascade
         if not os.path.exists(self.CASCADE_PATH):
-            # Try OpenCV's built-in path
             cascade_builtin = os.path.join(cv2.data.haarcascades, "haarcascade_frontalface_default.xml")
             if os.path.exists(cascade_builtin):
                 self.CASCADE_PATH = cascade_builtin
                 print(f"✓ Using built-in Haar Cascade: {cascade_builtin}")
             else:
-                messagebox.showerror("Error",
-                                    f"Haar Cascade not found!\n\n"
-                                    f"Searched in:\n"
-                                    f"1. {self.CASCADE_PATH}\n"
-                                    f"2. {cascade_builtin}\n\n"
-                                    f"Please ensure the file exists.")
+                self.show_message("error", "Error",
+                                  f"Haar Cascade not found!\n\nSearched in:\n1. {self.CASCADE_PATH}\n2. {cascade_builtin}\n\nPlease ensure the file exists.")
                 self.recognition_running = False
                 return
         else:
             print(f"✓ Haar Cascade found: {self.CASCADE_PATH}")
 
-        # Check Classifier (try multiple locations)
         classifier_loaded = False
         classifier_file = None
         for path in [self.CLASSIFIER_PATH, self.CLASSIFIER_PATH_ALT]:
@@ -240,34 +315,25 @@ class Face_Recognition:
                 print(f"✓ Classifier found: {path} (Size: {file_size} bytes)")
                 if file_size < 100:
                     print(f"✗ WARNING: Classifier file is too small ({file_size} bytes)")
-                    print("  This indicates the model may not be properly trained!")
-                    messagebox.showwarning("Warning",
-                                        f"Classifier file is suspiciously small ({file_size} bytes).\n"
-                                        f"Please retrain your model with adequate training data.")
+                    self.show_message("warning", "Warning",
+                                      f"Classifier file is suspiciously small ({file_size} bytes).\nPlease retrain your model with adequate training data.")
                 classifier_loaded = True
                 break
 
         if not classifier_loaded:
-            messagebox.showerror("Error",
-                                f"Classifier not found!\n\n"
-                                f"Searched in:\n"
-                                f"1. {self.CLASSIFIER_PATH}\n"
-                                f"2. {self.CLASSIFIER_PATH_ALT}\n\n"
-                                f"Please train your model first!")
+            self.show_message("error", "Error",
+                              f"Classifier not found!\n\nSearched in:\n1. {self.CLASSIFIER_PATH}\n2. {self.CLASSIFIER_PATH_ALT}\n\nPlease train your model first!")
             self.recognition_running = False
             return
 
-        # ============= STEP 2: LOAD CASCADE =============
         faceCascade = cv2.CascadeClassifier(self.CASCADE_PATH)
         if faceCascade.empty():
-            messagebox.showerror("Error",
-                                "Failed to load Haar Cascade!\n"
-                                "The cascade file may be corrupted.")
+            self.show_message("error", "Error",
+                              "Failed to load Haar Cascade!\nThe cascade file may be corrupted.")
             self.recognition_running = False
             return
         print("✓ Haar Cascade loaded successfully")
 
-        # ============= STEP 3: LOAD CLASSIFIER =============
         try:
             clf = cv2.face.LBPHFaceRecognizer_create(
                 radius=2,
@@ -277,38 +343,23 @@ class Face_Recognition:
             )
             clf.read(classifier_file)
             print(f"✓ LBPH Classifier loaded successfully from: {classifier_file}")
-            print(f"  Parameters: radius=2, neighbors=16, grid=8x8")
 
         except Exception as e:
-            messagebox.showerror("Error",
-                                f"Failed to load classifier!\n\n"
-                                f"Error: {str(e)}\n\n"
-                                f"Possible causes:\n"
-                                f"1. Classifier file is corrupted\n"
-                                f"2. Model not properly trained\n"
-                                f"3. opencv-contrib-python not installed\n\n"
-                                f"Solution: Retrain your model or reinstall:\n"
-                                f"pip install opencv-contrib-python")
+            self.show_message("error", "Error",
+                              f"Failed to load classifier!\n\nError: {str(e)}\n\nPossible causes:\n1. Classifier file is corrupted\n2. Model not properly trained\n3. opencv-contrib-python not installed\n\nSolution: Retrain your model.")
             self.recognition_running = False
             return
 
-        # ============= STEP 4: TEST DATABASE CONNECTION =============
         if not self.db_pool:
-            messagebox.showerror("Error",
-                                "Database connection pool not initialized!\n\n"
-                                "Please check:\n"
-                                "1. MySQL server is running\n"
-                                "2. Database 'face_recog' exists\n"
-                                "3. Credentials are correct\n"
-                                "4. Student table exists with data")
+            self.show_message("error", "Error",
+                              "Database connection pool not initialized!\n\nPlease check:\n1. MySQL server is running\n2. Database 'face_recog' exists\n3. Credentials are correct")
             self.recognition_running = False
             return
 
         test_conn = self.get_db_connection()
         if not test_conn:
-            messagebox.showerror("Error",
-                                "Cannot connect to database!\n"
-                                "Face recognition will not work properly.")
+            self.show_message("error", "Error",
+                              "Cannot connect to database!\nFace recognition will not work properly.")
             self.recognition_running = False
             return
 
@@ -320,61 +371,42 @@ class Face_Recognition:
             test_conn.close()
             print(f"✓ Database connected: {student_count} students found")
             if student_count == 0:
-                messagebox.showwarning("Warning",
-                                    "No students found in database!\n"
-                                    "Please add students before recognition.")
+                self.show_message("warning", "Warning",
+                                "No students found in database!\nPlease add students before recognition.")
                 self.recognition_running = False
                 return
 
         except Error as e:
-            messagebox.showerror("Error", f"Database error: {e}")
+            self.show_message("error", "Error", f"Database error: {e}")
             self.recognition_running = False
             return
 
-        # ============= STEP 5: OPEN CAMERA =============
         print("\nOpening camera...")
         video_cap = cv2.VideoCapture(0)
         if not video_cap.isOpened():
             video_cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         if not video_cap.isOpened():
-            messagebox.showerror("Error",
-                                "Cannot access camera!\n\n"
-                                "Please check:\n"
-                                "1. Camera is connected\n"
-                                "2. No other application is using it\n"
-                                "3. Camera drivers are installed")
+            self.show_message("error", "Error",
+                            "Cannot access camera!\n\nPlease check:\n1. Camera is connected\n2. No other application is using it\n3. Camera drivers are installed")
             self.recognition_running = False
             return
 
-        # Set optimal camera properties
         video_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         video_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         video_cap.set(cv2.CAP_PROP_FPS, 30)
-        video_cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Reduce latency
+        video_cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
         actual_width = video_cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         actual_height = video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         print(f"✓ Camera opened: {int(actual_width)}x{int(actual_height)}")
 
-        # ============= STEP 6: RECOGNITION PARAMETERS =============
-        SCALE_FACTOR = 1.05  # Smaller = more thorough but slower
-        MIN_NEIGHBORS = 6    # Higher = fewer false positives
-        MIN_SIZE = (60, 60)  # Minimum face size to detect
-        # Confidence thresholds (CRITICAL FOR ACCURACY)
-        CONFIDENCE_THRESHOLD = 50  # Accept predictions above this
-        HIGH_CONFIDENCE = 70       # High confidence threshold
-        # Smoothing parameters
-        WINDOW_SIZE = 10           # Larger window = more stable
-        CONSENSUS_RATIO = 0.5      # 50% must agree
-        print(f"\nRecognition Parameters:")
-        print(f"  Scale Factor: {SCALE_FACTOR}")
-        print(f"  Min Neighbors: {MIN_NEIGHBORS}")
-        print(f"  Min Face Size: {MIN_SIZE}")
-        print(f"  Confidence Threshold: {CONFIDENCE_THRESHOLD}%")
-        print(f"  Window Size: {WINDOW_SIZE} frames")
-        print(f"  Consensus Required: {int(CONSENSUS_RATIO * 100)}%")
+        SCALE_FACTOR = 1.05
+        MIN_NEIGHBORS = 6
+        MIN_SIZE = (60, 60)
+        CONFIDENCE_THRESHOLD = 50
+        WINDOW_SIZE = 10
+        CONSENSUS_RATIO = 0.5
 
-        # ============= STEP 7: MAIN RECOGNITION LOOP =============
         print("\n" + "="*60)
         print("RECOGNITION ACTIVE - Press ENTER to stop")
         print("="*60 + "\n")
@@ -390,18 +422,15 @@ class Face_Recognition:
                 break
 
             frame_count += 1
-            # Calculate FPS every 30 frames
             if frame_count % 30 == 0:
                 fps = 30 / (time.time() - fps_start_time)
                 fps_start_time = time.time()
 
-            # Convert to grayscale
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
             gray_enhanced = clahe.apply(gray)
             gray_denoised = cv2.fastNlMeansDenoising(gray_enhanced, None, 10, 7, 21)
 
-            # Detect faces
             faces = faceCascade.detectMultiScale(
                 gray_denoised,
                 scaleFactor=SCALE_FACTOR,
@@ -410,7 +439,6 @@ class Face_Recognition:
                 flags=cv2.CASCADE_SCALE_IMAGE
             )
 
-            # Process each detected face
             for (x, y, w, h) in faces:
                 face_center = (x + w//2, y + h//2)
                 face_key = self.get_face_key(face_center)
@@ -474,17 +502,17 @@ class Face_Recognition:
                                     text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2
                                 )
                                 cv2.rectangle(frame,
-                                            (x, y_pos - text_height - 5),
-                                            (x + text_width + 10, y_pos + 5),
-                                            (0, 255, 0), -1)
+                                              (x, y_pos - text_height - 5),
+                                              (x + text_width + 10, y_pos + 5),
+                                              (0, 255, 0), -1)
                                 cv2.putText(frame, text, (x + 5, y_pos),
                                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
                             
                             if most_common_id not in self.last_recognized or \
                                     time.time() - self.last_recognized.get(most_common_id, 0) > 5:
                                 print(f"✓ RECOGNIZED: {info['Name']} (ID: {most_common_id}) "
-                                    f"- Confidence: {int(avg_confidence)}% "
-                                    f"- Distance: {avg_distance:.2f}")
+                                      f"- Confidence: {int(avg_confidence)}% "
+                                      f"- Distance: {avg_distance:.2f}")
                                 self.last_recognized[most_common_id] = time.time()
                                 try:
                                     self.mark_attendance(most_common_id, info['Name'], info['Roll'], info['Dep'])
@@ -514,7 +542,6 @@ class Face_Recognition:
                     cv2.putText(frame, "ERROR", (x, y - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
 
-            # Display system info
             cv2.putText(frame, f"FPS: {int(fps)}", (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
             cv2.putText(frame, f"Faces: {len(faces)}", (10, 60),
@@ -522,16 +549,13 @@ class Face_Recognition:
             cv2.putText(frame, "Press ENTER to exit", (10, frame.shape[0] - 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
-            # Show frame
-            cv2.imshow("Face Recognition System - Ultra Accurate Mode", frame)
+            cv2.imshow("Face Recognition System", frame)
 
-            # Check for exit
             key = cv2.waitKey(1) & 0xFF
             if key == 13:  # ENTER key
                 print("\n⚠ User requested exit via ENTER key")
-                self.stop_flag = True # Signal the loop to stop
+                self.stop_flag = True
         
-        # ============= CLEANUP =============
         print("\n" + "="*60)
         print("SHUTTING DOWN RECOGNITION SYSTEM")
         print("="*60)
@@ -549,14 +573,12 @@ class Face_Recognition:
         Ensures one entry per student per day (no duplication).
         """
         try:
-            filename = "attendance.csv"
-            # create file with header if missing
+            filename = "attendance_report.csv"
             if not os.path.exists(filename) or os.path.getsize(filename) == 0:
                 with open(filename, "w", newline="") as f:
                     writer = csv.writer(f)
                     writer.writerow(["StudentID", "Name", "RollNo", "Department", "Time", "Date", "Status"])
 
-            # read existing lines to check duplication
             now = datetime.now()
             date_str = now.strftime("%d-%m-%Y")
             time_str = now.strftime("%H:%M:%S")
@@ -597,10 +619,9 @@ class Face_Recognition:
         """Fetches the current time and updates the time label."""
         string =strftime('%H:%M:%S %p')
         self.time_lbl.config(text=string)
-        # Schedule this method to run again after 1000ms (1 second)
         self.time_lbl.after(1000, self.update_time)    
     
 if __name__ == "__main__":
-    root = Tk()
+    root = ttk.Window(themename="vapor") 
     obj = Face_Recognition(root)
     root.mainloop()
