@@ -1,11 +1,20 @@
 #---code requirements---
 # packages to be installed
-Pillow>=10.0.0
+Pillow
 opencv-python
-
+opencv-contrib-python
+numpy
+mysql-connector-python
+pyttsx3
+groq
+httpx[cli]
+requests
+python-dotenv
+distro
+ttkbootstrap
+ttkbootstrap pillow
 # ----------------programming language---------
-# python>=3.13.7
+# python>=3.11.9
 # tkinter
-
 
 
